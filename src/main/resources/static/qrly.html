@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>qrly</title>
+    <script src='./qrcode.js'></script>
+    <script>
+        function oprint(str) {
+        	//console.log(str)
+        	document.getElementById('output').innerHTML = "Information : " + str['info']
+            if (str['id'] != -1)
+                document.getElementById('output').innerHTML = document.getElementById('output').innerHTML + "<br>" + "Shortened url : " + `<a href='localhost:8080/shorturl/${str['id']}' target="_blank" rel="noopener noreferrer">localhost:8080/shorturl/${str['id']}</a>`
+            document.getElementById('output').innerHTML = document.getElementById('output').innerHTML + "<br>" + "original url : " + `<a href='${str['url']}' target="_blank" rel="noopener noreferrer">${str['url']}</a>`
+        }
+        function postUrl() {
+        	let url = document.getElementById('inputurl').value.trim()
+            if (url == "") {
+                document.getElementById('output').innerHTML = "Information : cannot have empty url, please enter a valid url" 
+                return
+            }
+        	//console.log(url)
+            return fetch(`http://localhost:8080/shorturl/`, {
+
+                // Adding method type
+                method: "POST",
+
+                // Adding body or contents to send
+                body: JSON.stringify({url}),
+
+                // Adding headers to the request
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            })
+			//.then(response => console.log(response))
+                // Converting to JSON
+                .then(response => response.json())
+
+                // Displaying results to console
+                .then(json => oprint(json));
+
+        }
+        function generateQRCode() {
+            let url = document.getElementById('inputurl').value.trim()
+            if (url == "") {
+                document.getElementById("qrcode").innerHTML = "please input url for generating qrcode"
+                return
+            }
+            document.getElementById("qrcode").innerHTML = ""
+            new QRCode(document.getElementById("qrcode"), url);
+        }
+    </script>
+</head>
+
+<body>
+    <h1>Welcome to qrly</h1>
+    <form>
+        <label for="url">url</label>
+        <input name="url" type="text" id="inputurl">
+        <input type="button" onclick="postUrl()" value="submit url">
+        <input type="button" onclick="generateQRCode()" value="generate qr code">
+    </form>
+    <br>
+    <hr>
+    <br>
+    <div id="output">
+
+    </div>
+    <br>
+    <hr>
+    <br>
+    <div id="qrcode">
+
+    </div>
+</body>
+</html>
